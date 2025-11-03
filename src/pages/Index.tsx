@@ -10,12 +10,24 @@ const Index = () => {
   const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
 
   const tours = [
-    { id: 1, name: 'Рим', country: 'Италия', price: '1 990 ₽/мес', image: 'https://cdn.poehali.dev/projects/a5b79293-428a-4992-b2c7-35c0cd8e0fb7/files/fee4055e-ff75-43cf-ac9f-c420311a6667.jpg', tours: 12 },
-    { id: 2, name: 'Париж', country: 'Франция', price: '2 490 ₽/мес', image: 'https://cdn.poehali.dev/projects/a5b79293-428a-4992-b2c7-35c0cd8e0fb7/files/cfeae994-deb5-4492-8f47-f7a31c8da3e9.jpg', tours: 15 },
-    { id: 3, name: 'Токио', country: 'Япония', price: '2 790 ₽/мес', image: 'https://cdn.poehali.dev/projects/a5b79293-428a-4992-b2c7-35c0cd8e0fb7/files/3cce94f2-0526-4234-a855-8190c96eb913.jpg', tours: 10 },
-    { id: 4, name: 'Нью-Йорк', country: 'США', price: '2 990 ₽/мес', image: 'https://cdn.poehali.dev/projects/a5b79293-428a-4992-b2c7-35c0cd8e0fb7/files/fee4055e-ff75-43cf-ac9f-c420311a6667.jpg', tours: 18 },
-    { id: 5, name: 'Лондон', country: 'Великобритания', price: '2 490 ₽/мес', image: 'https://cdn.poehali.dev/projects/a5b79293-428a-4992-b2c7-35c0cd8e0fb7/files/cfeae994-deb5-4492-8f47-f7a31c8da3e9.jpg', tours: 14 },
-    { id: 6, name: 'Дубай', country: 'ОАЭ', price: '3 490 ₽/мес', image: 'https://cdn.poehali.dev/projects/a5b79293-428a-4992-b2c7-35c0cd8e0fb7/files/3cce94f2-0526-4234-a855-8190c96eb913.jpg', tours: 8 }
+    { id: 1, name: 'Рим', country: 'Италия', region: 'Европа', price: '1 990 ₽/мес', image: 'https://cdn.poehali.dev/projects/a5b79293-428a-4992-b2c7-35c0cd8e0fb7/files/fee4055e-ff75-43cf-ac9f-c420311a6667.jpg', tours: 12 },
+    { id: 2, name: 'Париж', country: 'Франция', region: 'Европа', price: '2 490 ₽/мес', image: 'https://cdn.poehali.dev/projects/a5b79293-428a-4992-b2c7-35c0cd8e0fb7/files/cfeae994-deb5-4492-8f47-f7a31c8da3e9.jpg', tours: 15 },
+    { id: 3, name: 'Токио', country: 'Япония', region: 'Азия', price: '2 790 ₽/мес', image: 'https://cdn.poehali.dev/projects/a5b79293-428a-4992-b2c7-35c0cd8e0fb7/files/3cce94f2-0526-4234-a855-8190c96eb913.jpg', tours: 10 },
+    { id: 4, name: 'Нью-Йорк', country: 'США', region: 'Америка', price: '2 990 ₽/мес', image: 'https://cdn.poehali.dev/projects/a5b79293-428a-4992-b2c7-35c0cd8e0fb7/files/fee4055e-ff75-43cf-ac9f-c420311a6667.jpg', tours: 18 },
+    { id: 5, name: 'Лондон', country: 'Великобритания', region: 'Европа', price: '2 490 ₽/мес', image: 'https://cdn.poehali.dev/projects/a5b79293-428a-4992-b2c7-35c0cd8e0fb7/files/cfeae994-deb5-4492-8f47-f7a31c8da3e9.jpg', tours: 14 },
+    { id: 6, name: 'Дубай', country: 'ОАЭ', region: 'Азия', price: '3 490 ₽/мес', image: 'https://cdn.poehali.dev/projects/a5b79293-428a-4992-b2c7-35c0cd8e0fb7/files/3cce94f2-0526-4234-a855-8190c96eb913.jpg', tours: 8 },
+    { id: 7, name: 'Барселона', country: 'Испания', region: 'Европа', price: '2 190 ₽/мес', image: 'https://cdn.poehali.dev/projects/a5b79293-428a-4992-b2c7-35c0cd8e0fb7/files/cfeae994-deb5-4492-8f47-f7a31c8da3e9.jpg', tours: 11 },
+    { id: 8, name: 'Сингапур', country: 'Сингапур', region: 'Азия', price: '2 890 ₽/мес', image: 'https://cdn.poehali.dev/projects/a5b79293-428a-4992-b2c7-35c0cd8e0fb7/files/3cce94f2-0526-4234-a855-8190c96eb913.jpg', tours: 9 },
+    { id: 9, name: 'Сидней', country: 'Австралия', region: 'Океания', price: '3 190 ₽/мес', image: 'https://cdn.poehali.dev/projects/a5b79293-428a-4992-b2c7-35c0cd8e0fb7/files/fee4055e-ff75-43cf-ac9f-c420311a6667.jpg', tours: 7 },
+    { id: 10, name: 'Амстердам', country: 'Нидерланды', region: 'Европа', price: '2 390 ₽/мес', image: 'https://cdn.poehali.dev/projects/a5b79293-428a-4992-b2c7-35c0cd8e0fb7/files/cfeae994-deb5-4492-8f47-f7a31c8da3e9.jpg', tours: 13 },
+    { id: 11, name: 'Стамбул', country: 'Турция', region: 'Европа', price: '1 790 ₽/мес', image: 'https://cdn.poehali.dev/projects/a5b79293-428a-4992-b2c7-35c0cd8e0fb7/files/3cce94f2-0526-4234-a855-8190c96eb913.jpg', tours: 14 },
+    { id: 12, name: 'Рио-де-Жанейро', country: 'Бразилия', region: 'Америка', price: '2 590 ₽/мес', image: 'https://cdn.poehali.dev/projects/a5b79293-428a-4992-b2c7-35c0cd8e0fb7/files/fee4055e-ff75-43cf-ac9f-c420311a6667.jpg', tours: 10 },
+    { id: 13, name: 'Прага', country: 'Чехия', region: 'Европа', price: '1 890 ₽/мес', image: 'https://cdn.poehali.dev/projects/a5b79293-428a-4992-b2c7-35c0cd8e0fb7/files/cfeae994-deb5-4492-8f47-f7a31c8da3e9.jpg', tours: 12 },
+    { id: 14, name: 'Сеул', country: 'Южная Корея', region: 'Азия', price: '2 690 ₽/мес', image: 'https://cdn.poehali.dev/projects/a5b79293-428a-4992-b2c7-35c0cd8e0fb7/files/3cce94f2-0526-4234-a855-8190c96eb913.jpg', tours: 11 },
+    { id: 15, name: 'Берлин', country: 'Германия', region: 'Европа', price: '2 290 ₽/мес', image: 'https://cdn.poehali.dev/projects/a5b79293-428a-4992-b2c7-35c0cd8e0fb7/files/fee4055e-ff75-43cf-ac9f-c420311a6667.jpg', tours: 16 },
+    { id: 16, name: 'Бангкок', country: 'Таиланд', region: 'Азия', price: '2 190 ₽/мес', image: 'https://cdn.poehali.dev/projects/a5b79293-428a-4992-b2c7-35c0cd8e0fb7/files/cfeae994-deb5-4492-8f47-f7a31c8da3e9.jpg', tours: 13 },
+    { id: 17, name: 'Лос-Анджелес', country: 'США', region: 'Америка', price: '3 090 ₽/мес', image: 'https://cdn.poehali.dev/projects/a5b79293-428a-4992-b2c7-35c0cd8e0fb7/files/3cce94f2-0526-4234-a855-8190c96eb913.jpg', tours: 15 },
+    { id: 18, name: 'Вена', country: 'Австрия', region: 'Европа', price: '2 390 ₽/мес', image: 'https://cdn.poehali.dev/projects/a5b79293-428a-4992-b2c7-35c0cd8e0fb7/files/fee4055e-ff75-43cf-ac9f-c420311a6667.jpg', tours: 10 }
   ];
 
   const features = [
@@ -144,10 +156,17 @@ const Index = () => {
             >
               Америка
             </Button>
+            <Button 
+              variant={selectedCountry === 'Океания' ? "default" : "outline"}
+              onClick={() => setSelectedCountry('Океания')}
+              className={selectedCountry === 'Океания' ? "gradient-primary" : ""}
+            >
+              Океания
+            </Button>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {tours.map((tour, index) => (
+            {tours.filter(tour => selectedCountry === null || tour.region === selectedCountry).map((tour, index) => (
               <Card key={tour.id} className="overflow-hidden hover-scale border-border/50 bg-card/50 backdrop-blur-sm group" style={{ animationDelay: `${index * 100}ms` }}>
                 <div className="relative overflow-hidden">
                   <img 
