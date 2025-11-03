@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -6,9 +6,58 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import Icon from '@/components/ui/icon';
 
+const CountUp = ({ end, duration = 2, delay = 0 }: { end: number; duration?: number; delay?: number }) => {
+  const [count, setCount] = useState(0);
+  
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      let start = 0;
+      const increment = end / (duration * 60);
+      const counter = setInterval(() => {
+        start += increment;
+        if (start >= end) {
+          setCount(end);
+          clearInterval(counter);
+        } else {
+          setCount(Math.floor(start));
+        }
+      }, 1000 / 60);
+      
+      return () => clearInterval(counter);
+    }, delay * 1000);
+    
+    return () => clearTimeout(timer);
+  }, [end, duration, delay]);
+  
+  return <>{count.toLocaleString()}</>;
+};
+
 const Index = () => {
   const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
-  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [searchQuery, setSearchQuery] = useState<string>('');  
+  const [statsVisible, setStatsVisible] = useState(false);
+  const statsRef = useRef<HTMLDivElement>(null);
+  
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setStatsVisible(true);
+        }
+      },
+      { threshold: 0.3 }
+    );
+    
+    if (statsRef.current) {
+      observer.observe(statsRef.current);
+    }
+    
+    return () => {
+      if (statsRef.current) {
+        observer.unobserve(statsRef.current);
+      }
+    };
+  }, []);
 
   const tours = [
     { id: 1, name: 'Рим', country: 'Италия', region: 'Европа', price: '1 990 ₽/мес', image: 'https://cdn.poehali.dev/projects/a5b79293-428a-4992-b2c7-35c0cd8e0fb7/files/fee4055e-ff75-43cf-ac9f-c420311a6667.jpg', tours: 12 },
@@ -84,6 +133,9 @@ const Index = () => {
 
       <section className="pt-32 pb-20 px-4 relative overflow-hidden">
         <div className="absolute inset-0 gradient-primary opacity-10"></div>
+        <div className="absolute top-20 left-10 w-72 h-72 bg-primary/20 rounded-full blur-3xl animate-float"></div>
+        <div className="absolute bottom-20 right-10 w-96 h-96 bg-accent/20 rounded-full blur-3xl animate-float" style={{ animationDelay: '1s' }}></div>
+        
         <div className="container mx-auto relative z-10">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="animate-fade-in">
@@ -95,15 +147,33 @@ const Index = () => {
                 Погрузитесь в экскурсии по всему миру через дополненную реальность. 
                 Общайтесь с местными гидами в реальном времени из любой точки планеты.
               </p>
-              <div className="flex flex-wrap gap-4">
-                <Button size="lg" className="gradient-primary text-lg px-8">
+              <div className="flex flex-wrap gap-4 mb-12">
+                <Button size="lg" className="gradient-primary text-lg px-8 hover-scale">
                   Попробовать бесплатно
                   <Icon name="ArrowRight" size={20} className="ml-2" />
                 </Button>
-                <Button size="lg" variant="outline" className="text-lg px-8">
+                <Button size="lg" variant="outline" className="text-lg px-8 hover-scale">
                   <Icon name="Play" size={20} className="mr-2" />
                   Смотреть демо
                 </Button>
+              </div>
+              
+              <div ref={statsRef} className="grid grid-cols-3 gap-6">
+                {[
+                  { value: statsVisible ? 150 : 0, label: 'Стран', icon: 'Globe' },
+                  { value: statsVisible ? 1000 : 0, label: 'Экскурсий', icon: 'MapPin' },
+                  { value: statsVisible ? 50000 : 0, label: 'Путешественников', icon: 'Users' }
+                ].map((stat, i) => (
+                  <div key={i} className="text-center p-4 rounded-xl bg-card/50 backdrop-blur-sm border border-border/50 hover-scale">
+                    <Icon name={stat.icon as any} size={24} className="mx-auto mb-2 text-primary" />
+                    <div className="text-3xl font-bold gradient-primary bg-clip-text text-transparent mb-1">
+                      {statsVisible && (
+                        <CountUp end={stat.value} duration={2} delay={i * 0.2} />
+                      )}
+                    </div>
+                    <div className="text-sm text-muted-foreground">{stat.label}</div>
+                  </div>
+                ))}
               </div>
             </div>
             <div className="relative animate-scale-in">
@@ -197,25 +267,59 @@ const Index = () => {
                 
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {filteredTours.map((tour, index) => (
-              <Card key={tour.id} className="overflow-hidden hover-scale border-border/50 bg-card/50 backdrop-blur-sm group" style={{ animationDelay: `${index * 100}ms` }}>
+              <Card 
+                key={tour.id} 
+                className="overflow-hidden border-border/50 bg-card/50 backdrop-blur-sm group relative transition-all duration-300 hover:shadow-2xl hover:shadow-primary/20 hover:-translate-y-2" 
+                style={{ 
+                  animationDelay: `${index * 100}ms`,
+                  transform: 'perspective(1000px) rotateX(0deg) rotateY(0deg)',
+                  transition: 'all 0.3s ease'
+                }}
+                onMouseMove={(e) => {
+                  const card = e.currentTarget;
+                  const rect = card.getBoundingClientRect();
+                  const x = e.clientX - rect.left;
+                  const y = e.clientY - rect.top;
+                  const centerX = rect.width / 2;
+                  const centerY = rect.height / 2;
+                  const rotateX = (y - centerY) / 10;
+                  const rotateY = (centerX - x) / 10;
+                  card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.02)`;
+                }}
+                onMouseLeave={(e) => {
+                  const card = e.currentTarget;
+                  card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale(1)';
+                }}
+              >
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-accent/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
                 <div className="relative overflow-hidden">
                   <img 
                     src={tour.image} 
                     alt={tour.name} 
-                    className="w-full h-64 object-cover transition-transform duration-500 group-hover:scale-110"
+                    className="w-full h-64 object-cover transition-transform duration-700 group-hover:scale-110"
                   />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   <div className="absolute top-4 right-4">
-                    <Badge className="gradient-accent text-white border-0">{tour.tours} туров</Badge>
+                    <Badge className="gradient-accent text-white border-0 shadow-lg">{tour.tours} туров</Badge>
+                  </div>
+                  <div className="absolute bottom-4 left-4 right-4 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-4 group-hover:translate-y-0">
+                    <div className="flex gap-2">
+                      <Badge variant="secondary" className="text-xs"><Icon name="Star" size={12} className="mr-1" />4.9</Badge>
+                      <Badge variant="secondary" className="text-xs"><Icon name="Clock" size={12} className="mr-1" />24/7</Badge>
+                    </div>
                   </div>
                 </div>
-                <CardContent className="p-6">
-                  <h3 className="text-2xl font-bold mb-2">{tour.name}</h3>
-                  <p className="text-muted-foreground mb-4">{tour.country}</p>
+                <CardContent className="p-6 relative z-10">
+                  <h3 className="text-2xl font-bold mb-2 group-hover:text-primary transition-colors">{tour.name}</h3>
+                  <p className="text-muted-foreground mb-4 flex items-center gap-2">
+                    <Icon name="MapPin" size={16} />
+                    {tour.country}
+                  </p>
                   <div className="flex items-center justify-between">
                     <span className="text-xl font-semibold gradient-primary bg-clip-text text-transparent">{tour.price}</span>
-                    <Button className="gradient-primary">
+                    <Button className="gradient-primary group-hover:scale-110 transition-transform">
                       Исследовать
-                      <Icon name="ArrowRight" size={16} className="ml-2" />
+                      <Icon name="ArrowRight" size={16} className="ml-2 group-hover:translate-x-1 transition-transform" />
                     </Button>
                   </div>
                 </CardContent>
@@ -241,12 +345,17 @@ const Index = () => {
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
             {features.map((feature, index) => (
-              <Card key={index} className="p-6 hover-scale border-border/50 bg-card/50 backdrop-blur-sm" style={{ animationDelay: `${index * 100}ms` }}>
-                <div className="w-14 h-14 rounded-xl gradient-primary flex items-center justify-center mb-4">
+              <Card 
+                key={index} 
+                className="p-6 border-border/50 bg-card/50 backdrop-blur-sm group relative overflow-hidden transition-all duration-300 hover:shadow-lg hover:shadow-primary/10 hover:-translate-y-1" 
+                style={{ animationDelay: `${index * 100}ms` }}
+              >
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div className="w-14 h-14 rounded-xl gradient-primary flex items-center justify-center mb-4 relative z-10 group-hover:scale-110 transition-transform duration-300">
                   <Icon name={feature.icon as any} size={28} className="text-white" />
                 </div>
-                <h3 className="text-xl font-bold mb-2">{feature.title}</h3>
-                <p className="text-muted-foreground">{feature.description}</p>
+                <h3 className="text-xl font-bold mb-2 relative z-10 group-hover:text-primary transition-colors">{feature.title}</h3>
+                <p className="text-muted-foreground relative z-10">{feature.description}</p>
               </Card>
             ))}
           </div>
@@ -299,29 +408,41 @@ const Index = () => {
             {plans.map((plan, index) => (
               <Card 
                 key={index} 
-                className={`p-8 hover-scale relative ${plan.popular ? 'border-primary border-2 scale-105' : 'border-border/50'} bg-card/50 backdrop-blur-sm`}
+                className={`p-8 relative group transition-all duration-300 ${plan.popular ? 'border-primary border-2 scale-105 shadow-2xl shadow-primary/30' : 'border-border/50 hover:border-primary/50'} bg-card/50 backdrop-blur-sm hover:-translate-y-2 hover:shadow-xl`}
                 style={{ animationDelay: `${index * 100}ms` }}
               >
                 {plan.popular && (
-                  <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                    <Badge className="gradient-primary text-white border-0">Популярный</Badge>
-                  </div>
+                  <>
+                    <div className="absolute inset-0 gradient-primary opacity-5 rounded-lg"></div>
+                    <div className="absolute -top-4 left-1/2 -translate-x-1/2">
+                      <Badge className="gradient-primary text-white border-0 shadow-lg px-4 py-1">
+                        <Icon name="Star" size={14} className="mr-1" />
+                        Популярный
+                      </Badge>
+                    </div>
+                  </>
                 )}
-                <h3 className="text-2xl font-bold mb-2">{plan.name}</h3>
-                <div className="mb-6">
+                <h3 className="text-2xl font-bold mb-2 relative z-10 group-hover:text-primary transition-colors">{plan.name}</h3>
+                <div className="mb-6 relative z-10">
                   <span className="text-5xl font-bold gradient-primary bg-clip-text text-transparent">{plan.price}</span>
                   <span className="text-muted-foreground">/{plan.period}</span>
                 </div>
-                <ul className="space-y-4 mb-8">
+                <ul className="space-y-4 mb-8 relative z-10">
                   {plan.features.map((feature, i) => (
-                    <li key={i} className="flex items-center gap-3">
-                      <Icon name="Check" size={20} className="text-primary flex-shrink-0" />
-                      <span>{feature}</span>
+                    <li key={i} className="flex items-center gap-3 group/item">
+                      <div className="w-5 h-5 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0 group-hover/item:scale-110 transition-transform">
+                        <Icon name="Check" size={14} className="text-primary" />
+                      </div>
+                      <span className="text-sm">{feature}</span>
                     </li>
                   ))}
                 </ul>
-                <Button className={`w-full ${plan.popular ? 'gradient-primary' : ''}`} variant={plan.popular ? "default" : "outline"}>
+                <Button 
+                  className={`w-full relative z-10 group-hover:scale-105 transition-transform ${plan.popular ? 'gradient-primary shadow-lg shadow-primary/30' : ''}`} 
+                  variant={plan.popular ? "default" : "outline"}
+                >
                   Выбрать план
+                  <Icon name="ArrowRight" size={16} className="ml-2 group-hover:translate-x-1 transition-transform" />
                 </Button>
               </Card>
             ))}
