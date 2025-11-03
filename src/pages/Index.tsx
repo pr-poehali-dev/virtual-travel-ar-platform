@@ -8,6 +8,7 @@ import Icon from '@/components/ui/icon';
 
 const Index = () => {
   const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState<string>('');
 
   const tours = [
     { id: 1, name: 'Рим', country: 'Италия', region: 'Европа', price: '1 990 ₽/мес', image: 'https://cdn.poehali.dev/projects/a5b79293-428a-4992-b2c7-35c0cd8e0fb7/files/fee4055e-ff75-43cf-ac9f-c420311a6667.jpg', tours: 12 },
@@ -127,6 +128,18 @@ const Index = () => {
             </p>
           </div>
 
+          <div className="max-w-2xl mx-auto mb-8">
+            <div className="relative">
+              <Icon name="Search" size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" />
+              <Input 
+                placeholder="Поиск по городу или стране..." 
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-12 h-12 text-lg"
+              />
+            </div>
+          </div>
+
           <div className="flex flex-wrap gap-3 justify-center mb-12">
             <Button 
               variant={selectedCountry === null ? "default" : "outline"} 
@@ -166,7 +179,14 @@ const Index = () => {
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {tours.filter(tour => selectedCountry === null || tour.region === selectedCountry).map((tour, index) => (
+            {tours
+              .filter(tour => selectedCountry === null || tour.region === selectedCountry)
+              .filter(tour => 
+                searchQuery === '' || 
+                tour.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                tour.country.toLowerCase().includes(searchQuery.toLowerCase())
+              )
+              .map((tour, index) => (
               <Card key={tour.id} className="overflow-hidden hover-scale border-border/50 bg-card/50 backdrop-blur-sm group" style={{ animationDelay: `${index * 100}ms` }}>
                 <div className="relative overflow-hidden">
                   <img 
