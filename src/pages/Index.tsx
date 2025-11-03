@@ -178,15 +178,25 @@ const Index = () => {
             </Button>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {tours
+          {(() => {
+            const filteredTours = tours
               .filter(tour => selectedCountry === null || tour.region === selectedCountry)
               .filter(tour => 
                 searchQuery === '' || 
                 tour.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 tour.country.toLowerCase().includes(searchQuery.toLowerCase())
-              )
-              .map((tour, index) => (
+              );
+            
+            return (
+              <>
+                <div className="text-center mb-8">
+                  <p className="text-lg text-muted-foreground">
+                    Найдено <span className="font-bold gradient-primary bg-clip-text text-transparent">{filteredTours.length}</span> {filteredTours.length === 1 ? 'направление' : filteredTours.length > 1 && filteredTours.length < 5 ? 'направления' : 'направлений'}
+                  </p>
+                </div>
+                
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {filteredTours.map((tour, index) => (
               <Card key={tour.id} className="overflow-hidden hover-scale border-border/50 bg-card/50 backdrop-blur-sm group" style={{ animationDelay: `${index * 100}ms` }}>
                 <div className="relative overflow-hidden">
                   <img 
